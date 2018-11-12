@@ -32,22 +32,24 @@ class PQDict(Generic[T]):
         self._in_transaction = False
         self._queue_lock.release()
 
-    def compute_and_set_accessor(self, fun: Callable):
-        def helper(key: str, *args, **kwargs):
-            return self.compute_and_set(key, fun = fun, *args, **kwargs)
+    def compute_and_set_accessor(self, fun: Callable) -> Callable:
+        def helper(key: str, *args, **kwargs) -> Union[T, None]:
+            return self.compute_and_set(key, fun = fun, *args, **kwargs) # type: ignore
         return helper
 
-    def compute_if_not_value_accessor(self, fun: Callable, stored_value: Union[T, None] = None):
-        def helper(key: str, value: [T, None] = None, *args, **kwargs):
-            if value is None:
-                return self.compute_if_not_value(key, fun = fun, value = stored_value, *args, **kwargs)
+    def compute_if_not_value_accessor(self, fun: Callable, stored_value: Union[T, None] = None) -> Callable:
+        def helper(key: str, value: Union[T, None] = None, *args, **kwargs) -> Union[T, None]:
+            if value is not None:
+                return self.compute_if_not_value(key, fun = fun, value = value, *args, **kwargs) # type: ignore
+            elif stored_value is not None:
+                return self.compute_if_not_value(key, fun = fun, value = stored_value, *args, **kwargs) # type: ignore
             else:
-                return self.compute_if_not_value(key, fun = fun, value = value, *args, **kwargs)
+                return self.compute_if_not_value(key, fun = fun, value = None, *args, **kwargs) # type: ignore
         return helper
 
-    def compute_if_not_exists_accessor(self, fun: Callable):
-        def helper(key: str, *args, **kwargs):
-            return self.compute_if_not_exists(key, fun = fun, *args, **kwargs)
+    def compute_if_not_exists_accessor(self, fun: Callable) -> Callable:
+        def helper(key: str, *args, **kwargs) -> Union[T, None]:
+            return self.compute_if_not_exists(key, fun = fun, *args, **kwargs) # type: ignore
         return helper
 
     def compute_and_set(self, key: str, fun: Callable, *args, **kwargs):
