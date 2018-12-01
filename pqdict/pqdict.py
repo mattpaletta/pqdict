@@ -76,7 +76,7 @@ class PQDict(Generic[T, K]):
     def compute_and_set(self, key: K, fun: Callable, *args, **kwargs):
         if not self._in_transaction or threading.current_thread() != self._transaction_thread:
             with self._queue_lock:
-                return self._set(key = key, value = fun(*args, **kwargs), should_lock = True)
+                return self._set(key = key, value = fun(*args, **kwargs), should_lock = False)
         else:
             return self._set(key = key, value = fun(*args, **kwargs), should_lock = False)
 
