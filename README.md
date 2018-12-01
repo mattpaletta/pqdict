@@ -110,6 +110,70 @@ my_dict.set(key = "cat", value = 1) # Returns 1
 my_dict.end_transaction()
 ```
 
+### Callbacks
+The PQDict allows callbacks, that can be involved at certain internal events through the lifetime of the object.
+- `on_insert` will only call the function `fun` if there is no value in the dictionary with that key.
+- `on_update` will only call `fun` if the key already exists on an update.
+- `on_upsert` will only call `fun` on a update or an insert, replaces the current function for `update` and `insert`.
+- `on_remove` will only call `fun` when the cache is full, with the contents of the value being removed.
+
+Each of these functions must accept at least two parameters: `key` and `value`, followed by any other parameters you might want.
+```python
+from pqdict import PQDict
+my_dict = PQDict(max_size = 2)
+
+def f(key, value):
+    print("A1", value)
+    
+def g(key, value):
+    print("B1", value)
+    
+def h(key, value):
+    print("C1", value)
+
+my_dict.on_insert(fun = f)
+my_dict.on_update(fun = g)
+my_dict.on_remove(fun = h)
+
+my_dict.set(key = "cat", value = "A2") # Prints: A1 A2
+my_dict.set(key = "cat", value = "B2") # Prints: A1 A2
+my_dict.set(key = "dog", value = "C2") # Prints: A1 C2
+my_dict.set(key = "mouse", value = "D2") # Prints A1 D2
+#                                                 C1 B2
+```
+The last line prints two steps because mouse is inserted, and cat is removed, because the max_size is 2, so the
+remaining 2 keys are `dog` and `mouse`.  You may notice that the update prints `A1 A2` not `A1 B1`.  This is because
+by default on an update, we will pass the old value to the callback function, so you can evaluate the item being replaced.
+
+If instead, you want to receive the new value in our callback, or be more explicit, there are the following extended functions as well:
+```python
+from pqdict import PQDict
+my_dict = PQDict(max_size = 2)
+
+def f(key, value):
+    print("A1", value)
+    
+my_dict.on_update_old(fun = f)
+my_dict.on_update_new(fun = f)
+
+my_dict.on_upsert_old(fun = f)
+my_dict.on_upsert_new(fun = f)
+```
+On an insert, you will always get the new value, since no value currently exists.
+
+If we want to clear the `update`, `insert`, `upsert`, or `delete` functions, we can use the following convenience functions:
+```python
+from pqdict import PQDict
+my_dict = PQDict(max_size = 2)
+
+my_dict.clear_insert()    
+my_dict.clear_update()
+my_dict.clear_upsert()
+my_dict.clear_remove()
+```
+
+Note, that `clear_upsert` will remove the callback for both `insert` and `update`.
+
 ## Information
 
 ### Questions, Comments, Concerns, Queries, Qwibbles?
