@@ -208,9 +208,10 @@ class TestCallback(TestCase):
         data.on_upsert_new(func)
 
         data.set(key = "cat", value = 1)
-        data.set(key = "cat", value = 2)
+        assert test() == 1, "Upsert callback should be called the first time with the old value."
 
-        assert test() == 2, "Update callback should be called with new value."
+        data.set(key = "cat", value = 2)
+        assert test() == 2, "Upsert callback should be called with new value."
 
     def test_upsert_old(self):
         data = PQDict(max_size = 2)

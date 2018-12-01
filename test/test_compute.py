@@ -1,5 +1,4 @@
 from unittest import TestCase
-
 from pqdict import PQDict
 
 
@@ -25,7 +24,6 @@ class TestCompute(TestCase):
         x = self._data.get("cat")
         assert x == 1, "Incorrect returned value"
 
-
     def test_compute_in_not_exists(self):
         def helper():
             counter = 0
@@ -43,7 +41,6 @@ class TestCompute(TestCase):
         self._data.compute_if_not_exists(key = "cat", fun = func)
         x = self._data.get("cat")
         assert x == 1, "Function got recomputed."
-
 
     def test_compute_in_not_exists_accessor(self):
         def helper():
@@ -64,7 +61,6 @@ class TestCompute(TestCase):
         x = self._data.get("cat")
         assert x == 1, "Function got recomputed."
 
-
     def test_compute_if_not_value(self):
         def helper():
             counter = 0
@@ -84,7 +80,6 @@ class TestCompute(TestCase):
         x = self._data.get("cat")
 
         assert x == 2, "Function got recomputed."
-
 
     def test_compute_if_not_value_accessor(self):
         def helper():

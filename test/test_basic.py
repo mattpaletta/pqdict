@@ -55,18 +55,17 @@ class TestBasic(TestCase):
 
     def test_transaction(self):
         def helper(data: PQDict):
-            from time import sleep
-            sleep(1)
-
+            # We're in a transaction on a different thread, so we should be waiting!
             data.set(key = "dog", value = 1)
             data.set(key = "cat", value = 2)
             data.set(key = "mouse", value = 3)
 
         from threading import Thread
         t = Thread(target = helper, args = (self._data, ))
-        t.start()
+
         dict1 = self._data
         dict1.begin_transaction()
+        t.start()
 
         # Simulate work
         dict1.set(key = "dog", value = 2)
@@ -75,6 +74,7 @@ class TestBasic(TestCase):
 
         # Thread should still be waiting, since we're in a transaction
         assert t.is_alive(), "Thread completed work before we were done."
+        assert dict1.get(key = "mouse") == 4, "The other process shouldn't have written yet."
         dict1.end_transaction()
 
         t.join(timeout = 10)

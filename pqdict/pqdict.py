@@ -1,4 +1,5 @@
 import logging
+import threading
 from multiprocessing import Lock
 from typing import Callable, TypeVar, Generic, Dict, List, Union, Tuple
 
@@ -7,7 +8,8 @@ K = TypeVar('K')
 
 
 class PQDict(Generic[T]):
-    __slots__ = ["_accessed_queue", "_max_size", "_queue_lock", "_data", "_in_transaction",
+    __slots__ = ["_accessed_queue", "_max_size", "_queue_lock",
+                 "_transaction_thread", "_data", "_in_transaction",
                  "_on_insert", "_on_update", "_on_remove", "_update_new"]
 
     def __init__(self, max_size: int):
@@ -16,6 +18,7 @@ class PQDict(Generic[T]):
         self._queue_lock = Lock()
         self._data: Dict[K, T] = {}
         self._in_transaction = False
+        self._transaction_thread = None
 
         # Have the functions start out as None, so we can proceed and they don't take up time.
         self._update_new = False
@@ -42,10 +45,12 @@ class PQDict(Generic[T]):
 
     def begin_transaction(self):
         self._in_transaction = True
+        self._transaction_thread = threading.current_thread()
         self._queue_lock.acquire()
 
     def end_transaction(self):
         self._in_transaction = False
+        self._transaction_thread = None
         self._queue_lock.release()
 
     def compute_and_set_accessor(self, fun: Callable) -> Callable:
@@ -69,7 +74,7 @@ class PQDict(Generic[T]):
         return helper
 
     def compute_and_set(self, key: K, fun: Callable, *args, **kwargs):
-        if not self._in_transaction:
+        if not self._in_transaction or threading.current_thread() != self._transaction_thread:
             with self._queue_lock:
                 return self._set(key = key, value = fun(*args, **kwargs), should_lock = True)
         else:
@@ -89,7 +94,7 @@ class PQDict(Generic[T]):
             return determine_compute()
 
     def compute_if_not_exists(self, key: K, fun: Callable, *args, **kwargs) -> Union[T, None]:
-        if not self._in_transaction:
+        if not self._in_transaction or threading.current_thread() != self._transaction_thread:
             with self._queue_lock:
                 return self.__safe_compute_if_not_value_helper(key, fun, *args, **kwargs)
         else:
@@ -112,12 +117,12 @@ class PQDict(Generic[T]):
         self.on_update(fun, *args, **kwargs)
 
     def on_upsert_old(self, fun: Callable, *args, **kwargs):
+        self.on_upsert(fun, *args, **kwargs)
         self._update_new = False
-        return self.on_upsert(fun, *args, **kwargs)
 
     def on_upsert_new(self, fun: Callable, *args, **kwargs):
+        self.on_upsert(fun, *args, **kwargs)
         self._update_new = True
-        return self.on_upsert(fun, *args, **kwargs)
 
     def on_insert(self, fun: Callable, *args, **kwargs):
         self._on_insert = self._get_change_func(fun, *args, **kwargs)
@@ -164,7 +169,7 @@ class PQDict(Generic[T]):
 
     def _accessed_item(self, key: K, should_lock = True) -> Tuple[K, T]:
         # Don't try to reaquire the lock if already in a transaction.
-        if should_lock and not self._in_transaction:
+        if should_lock and (not self._in_transaction or threading.current_thread() != self._transaction_thread):
             with self._queue_lock:
                 return self.__safe_update_queue_helper(key)
         else:
@@ -173,14 +178,23 @@ class PQDict(Generic[T]):
     def set_and_replace(self, key: K, value: T) -> Tuple[K, T]:
         # Return the old value if it was full, could be None.
         self._set(key, value, should_lock = True)
-
         old_key, old_value = self._accessed_item(key, should_lock = True)
         return old_key, old_value
 
     def set(self, key: K, value: T) -> T:
-        return self._set(key, value, should_lock = True)
+        x = self._set(key, value)
+        return x
 
     def _set(self, key: K, value: T, should_lock = True) -> T:
+        if should_lock and (not self._in_transaction or threading.current_thread() != self._transaction_thread):
+            with self._queue_lock:
+                return self._safe_set(key, value)
+        else:
+            return self._safe_set(key, value)
+
+    def _safe_set(self, key: K, value: T):
+        self._accessed_item(key, should_lock = False)
+
         if not self._update_new:
             # Call the callback (with the old value)
             if key in self._data.keys():
@@ -189,7 +203,6 @@ class PQDict(Generic[T]):
                 self._on_insert(key, value)
 
         self._data.update({key: value})
-        self._accessed_item(key, should_lock = should_lock)
 
         if self._update_new:
             # Call the callback (with the new value)

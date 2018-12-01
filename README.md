@@ -135,11 +135,11 @@ my_dict.on_insert(fun = f)
 my_dict.on_update(fun = g)
 my_dict.on_remove(fun = h)
 
-my_dict.set(key = "cat", value = "A2") # Prints: A1 A2
-my_dict.set(key = "cat", value = "B2") # Prints: A1 A2
-my_dict.set(key = "dog", value = "C2") # Prints: A1 C2
-my_dict.set(key = "mouse", value = "D2") # Prints A1 D2
-#                                                 C1 B2
+my_dict.set(key = "cat", value = "A2")   # Prints: A1 A2
+my_dict.set(key = "cat", value = "B2")   # Prints: A1 A2
+my_dict.set(key = "dog", value = "C2")   # Prints: A1 C2
+my_dict.set(key = "mouse", value = "D2") # Prints: A1 D2
+#                                                  C1 B2
 ```
 The last line prints two steps because mouse is inserted, and cat is removed, because the max_size is 2, so the
 remaining 2 keys are `dog` and `mouse`.  You may notice that the update prints `A1 A2` not `A1 B1`.  This is because
@@ -161,7 +161,7 @@ my_dict.on_upsert_new(fun = f)
 ```
 On an insert, you will always get the new value, since no value currently exists.
 
-If we want to clear the `update`, `insert`, `upsert`, or `delete` functions, we can use the following convenience functions:
+If we want to clear the `update`, `insert`, `upsert`, or `remove` functions, we can use the following convenience functions:
 ```python
 from pqdict import PQDict
 my_dict = PQDict(max_size = 2)
