@@ -7,7 +7,7 @@ T = TypeVar('T')
 K = TypeVar('K')
 
 
-class PQDict(Generic[T]):
+class PQDict(Generic[T, K]):
     __slots__ = ["_accessed_queue", "_max_size", "_queue_lock",
                  "_transaction_thread", "_data", "_in_transaction",
                  "_on_insert", "_on_update", "_on_remove", "_update_new"]
@@ -22,9 +22,9 @@ class PQDict(Generic[T]):
 
         # Have the functions start out as None, so we can proceed and they don't take up time.
         self._update_new = False
-        self._on_insert = None
-        self._on_update = None
-        self._on_remove = None
+        self._on_insert = lambda x, y: x
+        self._on_update = lambda x, y: x
+        self._on_remove = lambda x, y: x
 
         # Make sure we're in a consistent state on the way back.
         self._reset_update_new()
@@ -167,7 +167,7 @@ class PQDict(Generic[T]):
         else:
             return default
 
-    def _accessed_item(self, key: K, should_lock = True) -> Tuple[K, T]:
+    def _accessed_item(self, key: K, should_lock = True) -> Tuple[Union[K, None], Union[T, None]]:
         # Don't try to reaquire the lock if already in a transaction.
         if should_lock and (not self._in_transaction or threading.current_thread() != self._transaction_thread):
             with self._queue_lock:
@@ -175,7 +175,7 @@ class PQDict(Generic[T]):
         else:
             return self.__safe_update_queue_helper(key)
 
-    def set_and_replace(self, key: K, value: T) -> Tuple[K, T]:
+    def set_and_replace(self, key: K, value: T) -> Tuple[Union[K, None], Union[T, None]]:
         # Return the old value if it was full, could be None.
         self._set(key, value, should_lock = True)
         old_key, old_value = self._accessed_item(key, should_lock = True)
@@ -230,7 +230,7 @@ class PQDict(Generic[T]):
         else:
             return current_val
 
-    def __safe_update_queue_helper(self, key: K) -> Tuple[K, T]:
+    def __safe_update_queue_helper(self, key: K) -> Tuple[Union[K, None], Union[T, None]]:
         if len(self._accessed_queue) >= self._max_size:
             logging.debug("PQDict size exceeded, removing one element: " + str(self._max_size))
             last_key = self._accessed_queue.pop(0)
