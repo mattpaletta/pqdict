@@ -1,10 +1,10 @@
 from unittest import TestCase
-from pqdict import PQDict
+from threadlru import LRUCache
 
 
 class TestCompute(TestCase):
     def setUp(self):
-        self._data = PQDict(max_size = 2)
+        self._data = LRUCache(max_size = 2)
 
     def test_compute_and_set(self):
         def helper():

@@ -1,11 +1,11 @@
 from unittest import TestCase
 
-from pqdict import PQDict
+from threadlru import LRUCache
 
 
 class TestCallback(TestCase):
     def test_insert(self):
-        data = PQDict(max_size = 2)
+        data = LRUCache(max_size = 2)
 
         def helper():
             counter = 0
@@ -31,7 +31,7 @@ class TestCallback(TestCase):
         assert test() == 1, "Insert callback should only be called once on an insert + update."
 
     def test_update_default(self):
-        data = PQDict(max_size = 2)
+        data = LRUCache(max_size = 2)
 
         def helper():
             counter = 0
@@ -57,7 +57,7 @@ class TestCallback(TestCase):
         assert test() == 1, "Update callback should be called with old value by default."
 
     def test_update_new(self):
-        data = PQDict(max_size = 2)
+        data = LRUCache(max_size = 2)
 
         def helper():
             counter = 0
@@ -83,7 +83,7 @@ class TestCallback(TestCase):
         assert test() == 2, "Update callback should be called with new value."
 
     def test_update_old(self):
-        data = PQDict(max_size = 2)
+        data = LRUCache(max_size = 2)
 
         def helper():
             counter = 0
@@ -109,7 +109,7 @@ class TestCallback(TestCase):
         assert test() == 1, "Update callback should be called with old value."
 
     def test_update_count(self):
-        data = PQDict(max_size = 2)
+        data = LRUCache(max_size = 2)
 
         def helper():
             counter = 0
@@ -135,7 +135,7 @@ class TestCallback(TestCase):
         assert test() == 1, "Update callback should only be called once on an insert + update."
 
     def test_upsert_count(self):
-        data = PQDict(max_size = 2)
+        data = LRUCache(max_size = 2)
 
         def helper():
             counter = 0
@@ -161,7 +161,7 @@ class TestCallback(TestCase):
         assert test() == 2, "Upsert callback should be called twice on an insert + update."
 
     def test_upsert_default(self):
-        data = PQDict(max_size = 2)
+        data = LRUCache(max_size = 2)
 
         def helper():
             counter = 0
@@ -187,7 +187,7 @@ class TestCallback(TestCase):
         assert test() == 1, "Upsert callback should be called with old value by default."
 
     def test_upsert_new(self):
-        data = PQDict(max_size = 2)
+        data = LRUCache(max_size = 2)
 
         def helper():
             counter = 0
@@ -214,7 +214,7 @@ class TestCallback(TestCase):
         assert test() == 2, "Upsert callback should be called with new value."
 
     def test_upsert_old(self):
-        data = PQDict(max_size = 2)
+        data = LRUCache(max_size = 2)
 
         def helper():
             counter = 0
@@ -240,7 +240,7 @@ class TestCallback(TestCase):
         assert test() == 1, "Update callback should be called with old value."
 
     def test_remove(self):
-        data = PQDict(max_size = 2)
+        data = LRUCache(max_size = 2)
 
         def helper():
             counter = 0

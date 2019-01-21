@@ -4,16 +4,16 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
-    name="pqdict",
+    name="threadlru",
     version="0.0.1",
-    url='https://github.com/mattpaletta/pqdict',
+    url='https://github.com/mattpaletta/threadlru',
     packages=find_packages(),
     include_package_data=True,
     install_requires=[],
     setup_requires=[],
     author="Matthew Paletta",
     author_email="mattpaletta@gmail.com",
-    description="Thread-Safe PQDict Implementation",
+    description="Thread-Safe LRU Implementation",
     long_description = long_description,
     long_description_content_type = "text/markdown",
     license="GNU GPLv3",

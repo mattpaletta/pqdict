@@ -1,10 +1,10 @@
 from unittest import TestCase
-from pqdict import PQDict
+from threadlru import LRUCache
 
 
 class TestBasic(TestCase):
     def setUp(self):
-        self._data = PQDict(max_size = 2)
+        self._data = LRUCache(max_size = 2)
 
     def test_set_single(self):
         self._data.set(key = "cat", value = 1)
@@ -25,7 +25,7 @@ class TestBasic(TestCase):
 
     def test_set_replace(self):
         # Assuming max_size = 2
-        self._data = PQDict(max_size = 2)
+        self._data = LRUCache(max_size = 2)
 
         self._data.set(key = "dog", value = 1)
         self._data.set(key = "cat", value = 2)
@@ -40,7 +40,7 @@ class TestBasic(TestCase):
 
     def test_contains(self):
         # Assuming max_size = 2
-        self._data = PQDict(max_size = 2)
+        self._data = LRUCache(max_size = 2)
 
         self._data.set(key = "dog", value = 1)
         self._data.set(key = "cat", value = 2)
@@ -54,7 +54,7 @@ class TestBasic(TestCase):
         assert not x, "Oldest item not replaced"
 
     def test_transaction(self):
-        def helper(data: PQDict):
+        def helper(data: LRUCache):
             # We're in a transaction on a different thread, so we should be waiting!
             data.set(key = "dog", value = 1)
             data.set(key = "cat", value = 2)

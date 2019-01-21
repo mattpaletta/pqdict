@@ -7,7 +7,7 @@ T = TypeVar('T')
 K = TypeVar('K')
 
 
-class PQDict(Generic[T, K]):
+class LRUCache(Generic[T, K]):
     __slots__ = ["_accessed_queue", "_max_size", "_queue_lock",
                  "_transaction_thread", "_data", "_in_transaction",
                  "_on_insert", "_on_update", "_on_remove", "_update_new"]
