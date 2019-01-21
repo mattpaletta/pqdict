@@ -15,7 +15,7 @@ pip install threadlru
 
 setup(
     name="threadlru",
-    version="0.0.1",
+    version="0.0.2",
     url='https://github.com/mattpaletta/threadlru',
     packages=find_packages(),
     include_package_data=True,
