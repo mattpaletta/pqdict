@@ -1,6 +1,6 @@
 # threadLRU
 Thread-Safe LRU Cache in Python
-[![Build Status](https://travis-ci.com/mattpaletta/threadlru.svg?branch=master)](https://travis-ci.com/mattpaletta/threadLRU)
+[![Build Status](https://travis-ci.com/mattpaletta/pqdict.svg?branch=master)](https://travis-ci.com/mattpaletta/pqdict)
 
 ## Instalation
 Thread LRU has no external dependencies.

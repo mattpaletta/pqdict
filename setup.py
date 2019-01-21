@@ -1,7 +1,17 @@
 from setuptools import setup, find_packages
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+long_description = """
+# threadLRU
+Thread-Safe LRU Cache in Python
+[![Build Status](https://travis-ci.com/mattpaletta/pqdict.svg?branch=master)](https://travis-ci.com/mattpaletta/pqdict)
+
+## Instalation
+Thread LRU has no external dependencies.
+To install threadlru:
+```
+pip install threadlru
+```
+"""
 
 setup(
     name="threadlru",
