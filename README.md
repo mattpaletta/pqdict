@@ -1,12 +1,12 @@
-# pqdict
-Thread-Safe Priority Queue Dictionary in Python
-[![Build Status](https://travis-ci.com/mattpaletta/pqdict.svg?branch=master)](https://travis-ci.com/mattpaletta/pqdict)
+# threadLRU
+Thread-Safe LRU Cache in Python
+[![Build Status](https://travis-ci.com/mattpaletta/threadlru.svg?branch=master)](https://travis-ci.com/mattpaletta/threadLRU)
 
 ## Instalation
-PQDict has no external dependencies.
-To install pqdict: 
+Thread LRU has no external dependencies.
+To install threadlru: 
 ```
-pip install git+git://github.com/mattpaletta/pqdict.git
+pip install threadlru
 ```
 
 ## Getting Started
@@ -14,14 +14,14 @@ You can see examples in `tests/`.
 
 To create a new instance (with a maximum size of 10 elements):
 ```python
-from pqdict import PQDict
-my_dict = PQDict(max_size = 10)
+from threadlru import LRUCache
+my_dict = LRUCache(max_size = 10)
 ```
 
 You can put elements in/out as follows:
 ```python
-from pqdict import PQDict
-my_dict = PQDict(max_size = 10)
+from threadlru import LRUCache
+my_dict = LRUCache(max_size = 10)
 my_dict.set(key = "cat", value = 1) # Returns 1
 my_dict.get(key = "cat") # Returns 1
 my_dict.get(key = "dog") # Returns None
@@ -40,8 +40,8 @@ You can also use it as a cache for any function.  Here, we are calling a functio
 with the parameter `n = 10`, only if the value does not already exist in our cache.
 Subsequent values will use this same value.
 ```python
-from pqdict import PQDict
-my_dict = PQDict(max_size = 10)
+from threadlru import LRUCache
+my_dict = LRUCache(max_size = 10)
 
 def fib(n):
     return n if n <= 1 else fib(n-1) + fib(n-2)
@@ -52,8 +52,8 @@ my_dict.compute_if_not_exists("mouse", fib, 10) # Returns 55 (cached)
 
 There are a few other methods available for computing values:
 ```python
-from pqdict import PQDict
-my_dict = PQDict(max_size = 10)
+from threadlru import LRUCache
+my_dict = LRUCache(max_size = 10)
 
 def fib(n):
     return n if n <= 1 else fib(n-1) + fib(n-2)
@@ -72,8 +72,8 @@ Even if you set the value with one of the `compute_*`, you can still access them
 ### Using accessors
 If you use the same function throughout your program to give to the cache, there are also accessors available.
 ```python
-from pqdict import PQDict
-my_dict = PQDict(max_size = 10)
+from threadlru import LRUCache
+my_dict = LRUCache(max_size = 10)
 def fib(n):
     return n if n <= 1 else fib(n-1) + fib(n-2)
     
@@ -92,18 +92,18 @@ compute_and_set(key = "mouse", n = 10) # Returns 55 (computed)
 ```
 
 ### Transactions
-The PQDict is also thread-safe.  You can start and end transactions (atomic operations) in two ways.
+The Thread LRU is also thread-safe.  You can start and end transactions (atomic operations) in two ways.
 ```python
-from pqdict import PQDict
-my_dict = PQDict(max_size = 10)
+from threadlru import LRUCache
+my_dict = LRUCache(max_size = 10)
 
 with my_dict as safe_dict:
     safe_dict.set(key = "cat", value = 1) # Returns 1
 ```
 
 ```python
-from pqdict import PQDict
-my_dict = PQDict(max_size = 10)
+from threadlru import LRUCache
+my_dict = LRUCache(max_size = 10)
 
 my_dict.begin_transaction()
 my_dict.set(key = "cat", value = 1) # Returns 1
@@ -111,7 +111,7 @@ my_dict.end_transaction()
 ```
 
 ### Callbacks
-The PQDict allows callbacks, that can be involved at certain internal events through the lifetime of the object.
+The LRU Cache allows callbacks, that can be involved at certain internal events through the lifetime of the object.
 - `on_insert` will only call the function `fun` if there is no value in the dictionary with that key.
 - `on_update` will only call `fun` if the key already exists on an update.
 - `on_upsert` will only call `fun` on a update or an insert, replaces the current function for `update` and `insert`.
@@ -119,8 +119,8 @@ The PQDict allows callbacks, that can be involved at certain internal events thr
 
 Each of these functions must accept at least two parameters: `key` and `value`, followed by any other parameters you might want.
 ```python
-from pqdict import PQDict
-my_dict = PQDict(max_size = 2)
+from threadlru import LRUCache
+my_dict = LRUCache(max_size = 2)
 
 def f(key, value):
     print("A1", value)
@@ -147,8 +147,8 @@ by default on an update, we will pass the old value to the callback function, so
 
 If instead, you want to receive the new value in our callback, or be more explicit, there are the following extended functions as well:
 ```python
-from pqdict import PQDict
-my_dict = PQDict(max_size = 2)
+from threadlru import LRUCache
+my_dict = LRUCache(max_size = 2)
 
 def f(key, value):
     print("A1", value)
@@ -163,8 +163,8 @@ On an insert, you will always get the new value, since no value currently exists
 
 If we want to clear the `update`, `insert`, `upsert`, or `remove` functions, we can use the following convenience functions:
 ```python
-from pqdict import PQDict
-my_dict = PQDict(max_size = 2)
+from threadlru import LRUCache
+my_dict = LRUCache(max_size = 2)
 
 my_dict.clear_insert()    
 my_dict.clear_update()
@@ -181,7 +181,7 @@ Note, that `clear_upsert` will remove the callback for both `insert` and `update
 If you have any questions, comments, or concerns please leave them in the GitHub
 Issues tracker:
 
-https://github.com/mattpaletta/pqdict/issues
+https://github.com/mattpaletta/theadlru/issues
 
 ### Bug reports
 
@@ -189,7 +189,7 @@ If you discover any bugs, feel free to create an issue on GitHub. Please add as 
 possible to help us fixing the possible bug. We also encourage you to help even more by forking and
 sending us a pull request.
 
-https://github.com/mattpaletta/pqdict/issues
+https://github.com/mattpaletta/threadlru/issues
 
 ## Maintainers
 
@@ -197,4 +197,4 @@ https://github.com/mattpaletta/pqdict/issues
 
 ## License
 
-GPL-3.0 License. Copyright 2018 Matthew Paletta. http://mrated.ca
+GPL-3.0 License. Copyright 2019 Matthew Paletta. http://mrated.ca
