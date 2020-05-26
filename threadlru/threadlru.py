@@ -149,7 +149,7 @@ class LRUCache(Generic[T, K]):
         self.clear_insert()
         self.clear_update()
 
-    def _get_change_func(self, fun, *args, **kwargs) -> None:
+    def _get_change_func(self, fun, *args, **kwargs) -> Callable:
         def helper(key: K, value: T):
             if fun is not None:
                 # Don't execute a function if we don't have one!
