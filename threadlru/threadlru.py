@@ -100,56 +100,56 @@ class LRUCache(Generic[T, K]):
         else:
             return self.__safe_compute_if_not_value_helper(key, fun, *args, **kwargs)
 
-    def on_update(self, fun: Callable, *args, **kwargs):
+    def on_update(self, fun: Callable, *args, **kwargs) -> None:
         self._reset_update_new()
         self._on_update = self._get_change_func(fun, *args, **kwargs)
 
-    def on_update_old(self, fun: Callable, *args, **kwargs):
+    def on_update_old(self, fun: Callable, *args, **kwargs) -> None:
         self._update_new = False
         self._on_update = self._get_change_func(fun, *args, **kwargs)
 
-    def on_update_new(self, fun: Callable, *args, **kwargs):
+    def on_update_new(self, fun: Callable, *args, **kwargs) -> None:
         self._update_new = True
         self._on_update = self._get_change_func(fun, *args, **kwargs)
 
-    def on_upsert(self, fun: Callable, *args, **kwargs):
+    def on_upsert(self, fun: Callable, *args, **kwargs) -> None:
         self.on_insert(fun, *args, **kwargs)
         self.on_update(fun, *args, **kwargs)
 
-    def on_upsert_old(self, fun: Callable, *args, **kwargs):
+    def on_upsert_old(self, fun: Callable, *args, **kwargs) -> None:
         self.on_upsert(fun, *args, **kwargs)
         self._update_new = False
 
-    def on_upsert_new(self, fun: Callable, *args, **kwargs):
+    def on_upsert_new(self, fun: Callable, *args, **kwargs) -> None:
         self.on_upsert(fun, *args, **kwargs)
         self._update_new = True
 
-    def on_insert(self, fun: Callable, *args, **kwargs):
+    def on_insert(self, fun: Callable, *args, **kwargs) -> None:
         self._on_insert = self._get_change_func(fun, *args, **kwargs)
 
-    def on_remove(self, fun: Callable, *args, **kwargs):
+    def on_remove(self, fun: Callable, *args, **kwargs) -> None:
         self._on_remove = self._get_change_func(fun, *args, **kwargs)
 
-    def _reset_update_new(self):
+    def _reset_update_new(self) -> None:
         self._update_new = False
 
-    def clear_insert(self):
+    def clear_insert(self) -> None:
         self._reset_update_new()
         self._on_insert = self._get_change_func(None)
 
-    def clear_update(self):
+    def clear_update(self) -> None:
         self._reset_update_new()
         self._on_update = self._get_change_func(None)
 
-    def clear_remove(self):
+    def clear_remove(self) -> None:
         self._reset_update_new()
         self._on_remove = self._get_change_func(None)
 
-    def clear_upsert(self):
+    def clear_upsert(self) -> None:
         self.clear_insert()
         self.clear_update()
 
-    def _get_change_func(self, fun, *args, **kwargs):
+    def _get_change_func(self, fun, *args, **kwargs) -> None:
         def helper(key: K, value: T):
             if fun is not None:
                 # Don't execute a function if we don't have one!
